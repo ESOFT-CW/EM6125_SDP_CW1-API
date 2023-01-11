@@ -1,4 +1,4 @@
-package lk.esoft.EM6125_SDP_CW1API.util;
+package lk.esoft.EM6125_SDP_CW1API.util.VarList;
 
 /**
  * @author Udara San

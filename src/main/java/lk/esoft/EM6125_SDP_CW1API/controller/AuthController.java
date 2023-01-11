@@ -9,16 +9,14 @@ package lk.esoft.EM6125_SDP_CW1API.controller;
 import lk.esoft.EM6125_SDP_CW1API.dto.AuthDTO;
 import lk.esoft.EM6125_SDP_CW1API.dto.ResponseDTO;
 import lk.esoft.EM6125_SDP_CW1API.dto.UserDTO;
-import lk.esoft.EM6125_SDP_CW1API.service.Impl.UserServiceImpl;
+import lk.esoft.EM6125_SDP_CW1API.service.impl.UserServiceImpl;
 import lk.esoft.EM6125_SDP_CW1API.util.JwtUtil;
-import lk.esoft.EM6125_SDP_CW1API.util.VarListUtil;
+import lk.esoft.EM6125_SDP_CW1API.util.VarList.VarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,25 +41,20 @@ public class AuthController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<ResponseDTO> authenticate(@RequestBody UserDTO userDTO) throws Exception{
-        System.out.println(userDTO);
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            userDTO.getUsername(),
-                            userDTO.getPassword()
-                    )
-            );
-        } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+                    new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword()));
+
+        } catch (Exception e) {
+            responseDTO.setCode(VarList.Unauthorized);
+            responseDTO.setMessage("Invalid Credentials");
+            responseDTO.setData(e.getMessage());
+            return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
         }
 
-        final UserDetails userDetails
-                = userService.loadUserByUsername(userDTO.getUsername());
-
+        //final UserDetails userDetails = userService.loadUserByUsername(userDTO.getUsername());
         final UserDTO userDTO2=userService.loadUserDetailsByUsername(userDTO.getUsername());
-
-        final String token =
-                jwtUtil.generateToken(userDTO2);
+        final String token = jwtUtil.generateToken(userDTO2);
 
         if (token!=null  && !token.isEmpty() ){
 
@@ -70,14 +63,14 @@ public class AuthController {
             authDTO.setUsername(userDTO1.getUsername());
             authDTO.setToken(token);
 
-            responseDTO.setCode(VarListUtil.RSP_SUCCESS);
+            responseDTO.setCode(VarList.Created);
             responseDTO.setMessage("Success");
-            responseDTO.setContent(authDTO);
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+            responseDTO.setData(authDTO);
+            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
         }
-        responseDTO.setCode(VarListUtil.RSP_ERROR);
-        responseDTO.setMessage("User Name Not Found");
-        responseDTO.setContent(null);
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+        responseDTO.setCode(VarList.Conflict);
+        responseDTO.setMessage("Authorization Failure! Please Try Again");
+        responseDTO.setData(null);
+        return new ResponseEntity<>(responseDTO, HttpStatus.CONFLICT);
     }
 }

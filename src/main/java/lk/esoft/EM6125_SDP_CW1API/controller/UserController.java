@@ -6,20 +6,14 @@ package lk.esoft.EM6125_SDP_CW1API.controller;
  */
 import lk.esoft.EM6125_SDP_CW1API.dto.ResponseDTO;
 import lk.esoft.EM6125_SDP_CW1API.dto.UserDTO;
-import lk.esoft.EM6125_SDP_CW1API.service.Impl.UserServiceImpl;
-import lk.esoft.EM6125_SDP_CW1API.util.FileUploadUtil;
-import lk.esoft.EM6125_SDP_CW1API.util.VarListUtil;
+import lk.esoft.EM6125_SDP_CW1API.service.impl.UserServiceImpl;
+import lk.esoft.EM6125_SDP_CW1API.util.VarList.VarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("api/v1/user")
@@ -31,40 +25,44 @@ public class UserController {
     @Autowired
     private UserServiceImpl userService;
 
-    //zip file upload
-    @PostMapping(value = "/uploadNICImage")
-    public ResponseEntity<ResponseDTO> registerPropertyImageUpload(@RequestParam("files") MultipartFile[] files) {
-        try{
-            String uploadDir="uploadUserImages";
-            Arrays.stream(files).forEach(file -> {
-                String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-                System.out.println(fileName);
-                try {
-                    FileUploadUtil.saveFile(uploadDir, fileName, file);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-            responseDTO.setCode(VarListUtil.RSP_SUCCESS);
-            responseDTO.setMessage("Success");
-            responseDTO.setContent(null);
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-        }catch (Exception e){
-            responseDTO.setCode(VarListUtil.RSP_ERROR);
-            responseDTO.setMessage(e.getMessage());
-            responseDTO.setContent(e);
-            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
     @PostMapping(value = "/register")
     public ResponseEntity<ResponseDTO> registerUser(@RequestBody UserDTO userDTO) {
         try {
-            String res = userService.saveUser(userDTO);
+            int res = userService.saveUser(userDTO);
+            if (res==201) {
+                responseDTO.setCode(VarList.Created);
+                responseDTO.setMessage("success");
+                responseDTO.setData(userDTO);
+                return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+            } else if (res==404) {
+                responseDTO.setCode(VarList.Not_Found);
+                responseDTO.setMessage("Username Already Use");
+                responseDTO.setData(null);
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            } else {
+                responseDTO.setCode(VarList.Bad_Gateway);
+                responseDTO.setMessage("Error");
+                responseDTO.setData(null);
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_GATEWAY);
+            }
+        } catch (Exception e) {
+            responseDTO.setCode(VarList.Internal_Server_Error);
+            responseDTO.setMessage(e.getMessage());
+            responseDTO.setData(null);
+            System.out.println(e);
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }/*
+    @PostMapping(value = "/sendOTP")
+    public ResponseEntity<ResponseDTO> sendOTP(@RequestParam String email) {
+        System.out.println(email);
+        try {
+            String res = userService.sendOTPCode(email);
             if (res.equals("00")) {
                 responseDTO.setCode(VarListUtil.RSP_SUCCESS);
-                responseDTO.setMessage("Success");
-                responseDTO.setContent(userDTO);
+                responseDTO.setMessage("success");
+                responseDTO.setContent(null);
                 return new ResponseEntity<>(responseDTO, HttpStatus.ACCEPTED);
             } else if (res.equals("01")) {
                 responseDTO.setCode(VarListUtil.RSP_NO_DATA_FOUND);
@@ -84,6 +82,32 @@ public class UserController {
             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping(value = "/getOTP")
+    public ResponseEntity<ResponseDTO> getOTP(@RequestParam String email) {
+        System.out.println(email);
+        try {
+            String otp = userService.getOTPCode(email);
+            if (otp!=null) {
+                responseDTO.setCode(VarListUtil.RSP_SUCCESS);
+                responseDTO.setMessage("success");
+                responseDTO.setContent(otp);
+                return new ResponseEntity<>(responseDTO, HttpStatus.ACCEPTED);
+            } else {
+                responseDTO.setCode(VarListUtil.RSP_FAIL);
+                responseDTO.setMessage("Error");
+                responseDTO.setContent(null);
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            responseDTO.setCode(VarListUtil.RSP_ERROR);
+            responseDTO.setMessage(e.getMessage());
+            responseDTO.setContent(e);
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
     //change the user status
     @PostMapping("/delete/{username}")
     public ResponseEntity<ResponseDTO> deleteUser(@PathVariable String username) {
@@ -164,20 +188,22 @@ public class UserController {
         }
     }
 
+*/
     @GetMapping("/getAllUsers")
-    public ResponseEntity<ResponseDTO> getAllUsers(@RequestAttribute String username,@RequestAttribute String role) {
+    public ResponseEntity<ResponseDTO> getAllUsers() {
+        System.out.println("username");
         try{
-            System.out.println(username);
-            System.out.println(role);
+
+            //System.out.println(role);
             List<UserDTO> userDTOList = userService.getAllUsers();
-            responseDTO.setCode(VarListUtil.RSP_SUCCESS);
+            responseDTO.setCode(VarList.Created);
             responseDTO.setMessage("Success");
-            responseDTO.setContent(userDTOList);
+            responseDTO.setData(userDTOList);
             return new ResponseEntity<>(responseDTO, HttpStatus.ACCEPTED);
         }catch (Exception e){
-            responseDTO.setCode(VarListUtil.RSP_ERROR);
+            responseDTO.setCode(VarList.Internal_Server_Error);
             responseDTO.setMessage(e.getMessage());
-            responseDTO.setContent(e);
+            responseDTO.setData(e);
             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 

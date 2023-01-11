@@ -1,14 +1,14 @@
-package lk.esoft.EM6125_SDP_CW1API.service.Impl;
+package lk.esoft.EM6125_SDP_CW1API.service.impl;
 /**
  * @author Udara San
  * @TimeStamp 11:43 AM | 11/9/2022 | 2022
  * @ProjectDetails ecom-api
  */
 
-import lk.esoft.EM6125_SDP_CW1API.dto.UserDTO;
-import lk.esoft.EM6125_SDP_CW1API.entity.User;
-import lk.esoft.EM6125_SDP_CW1API.repository.UserRepository;
-import lk.esoft.EM6125_SDP_CW1API.util.VarListUtil;
+import lk.esoft.fulemanagementsystem.dto.UserDTO;
+import lk.esoft.fulemanagementsystem.entity.User;
+import lk.esoft.fulemanagementsystem.repository.UserRepository;
+import lk.esoft.fulemanagementsystem.util.VarList.VarList;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,16 +32,22 @@ public class UserServiceImpl implements UserDetailsService {
     private UserRepository userRepository;
 
     @Autowired
+    private AuditServiceImpl auditService;
+
+    @Autowired
     private ModelMapper modelMapper;
 
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
+        auditService.saveAudit("loadUserByUsername","PASS:Load User By User Name"+username);
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), getAuthority(user));
     }
     public UserDTO loadUserDetailsByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
+        auditService.saveAudit("loadUserDetailsByUsername","PASS:Load User Detail By User Name"+username);
+
         return modelMapper.map(user,UserDTO.class);
     }
 
@@ -51,34 +57,26 @@ public class UserServiceImpl implements UserDetailsService {
         return authorities;
     }
 
-    public String saveUser(UserDTO userDTO) {
+    public int saveUser(UserDTO userDTO) {
         if (userRepository.existsByUsername(userDTO.getUsername())) {
-            return VarListUtil.RSP_NO_DATA_FOUND;
+            auditService.saveAudit("saveUser","PASS:Save User Now"+userDTO.getName());
+            return VarList.Not_Found;
         } else {
             userRepository.save(modelMapper.map(userDTO, User.class));
-            return VarListUtil.RSP_SUCCESS;
+            auditService.saveAudit("saveUser","FAIL:Save User Now"+userDTO.getName());
+            return VarList.Created;
         }
     }
 
-    public String deleteUser(String username) {
+    public int deleteUser(String username) {
         if (userRepository.existsByUsername(username)) {
             userRepository.deleteByUsername(username);
-            return VarListUtil.RSP_SUCCESS;
+            return VarList.Created;
         } else {
-            return VarListUtil.RSP_NO_DATA_FOUND;
+            return VarList.Not_Found;
         }
     }
-    public String updateUser(UserDTO userDTO) {
-        if (userRepository.existsByUsername(userDTO.getUsername())) {
-            userRepository.updateUser(userDTO.getAddress(),userDTO.getEmail(),
-                    userDTO.getIdPhoto(),userDTO.getName(),userDTO.getPassword(),
-                    userDTO.getPhoneNo1(),userDTO.getPhoneNo2(),userDTO.getRemarks(),
-                    userDTO.getRoleCode(),userDTO.getStatus(),userDTO.getUsername());
-            return VarListUtil.RSP_SUCCESS;
-        } else {
-            return VarListUtil.RSP_NO_DATA_FOUND;
-        }
-    }
+
 
     public List<UserDTO> getAllUsers() {
         List<User> users=userRepository.findAll();

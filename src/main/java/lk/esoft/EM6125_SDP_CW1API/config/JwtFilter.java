@@ -8,8 +8,9 @@ package lk.esoft.EM6125_SDP_CW1API.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import lk.esoft.EM6125_SDP_CW1API.service.Impl.UserServiceImpl;
-import lk.esoft.EM6125_SDP_CW1API.util.JwtUtil;
+import lk.esoft.fulemanagementsystem.dto.ResponseDTO;
+import lk.esoft.fulemanagementsystem.service.impl.UserServiceImpl;
+import lk.esoft.fulemanagementsystem.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,12 +33,13 @@ JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtil jwtUtil;
-
     @Autowired
     private UserServiceImpl userService;
-
     @Value("${jwt.secret}")
     private String secretKey;
+
+    @Autowired
+    private ResponseDTO responseDTO;
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {

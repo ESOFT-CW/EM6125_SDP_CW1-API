@@ -4,7 +4,7 @@ package lk.esoft.EM6125_SDP_CW1API.config;
  * @TimeStamp 11:43 AM | 11/9/2022 | 2022
  * @ProjectDetails ecom-api
  */
-import lk.esoft.EM6125_SDP_CW1API.service.Impl.UserServiceImpl;
+import lk.esoft.fulemanagementsystem.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,12 +19,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
     @Autowired
     private UserServiceImpl userService;
 
     @Autowired
-    private lk.esoft.EM6125_SDP_CW1API.config.JwtFilter jwtFilter;
+    private lk.esoft.fulemanagementsystem.config.JwtFilter jwtFilter;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -42,8 +41,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/v1/auth/authenticate"
-                        )
+                .antMatchers("/api/v1/auth/authenticate")
                 .permitAll()
                 .anyRequest()
                 .authenticated()

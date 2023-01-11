@@ -4,7 +4,7 @@ package lk.esoft.EM6125_SDP_CW1API.repository;
  * @TimeStamp 11:43 AM | 11/9/2022 | 2022
  * @ProjectDetails ecom-api
  */
-import lk.esoft.EM6125_SDP_CW1API.entity.User;
+import lk.esoft.fulemanagementsystem.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
