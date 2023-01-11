@@ -12,4 +12,10 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Data
 public class AuditSection {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer aids;
+    private String dates;
+    private String functions;
+    private String messages;
 }

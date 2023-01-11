@@ -4,11 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
 import java.sql.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class PaymentDTO {
+    private Integer pid;
+    private String paymentStatus;
+    private Date paymentDate;
 
 }

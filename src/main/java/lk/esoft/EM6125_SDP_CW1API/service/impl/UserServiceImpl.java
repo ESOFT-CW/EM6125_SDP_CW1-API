@@ -5,10 +5,11 @@ package lk.esoft.EM6125_SDP_CW1API.service.impl;
  * @ProjectDetails ecom-api
  */
 
-import lk.esoft.fulemanagementsystem.dto.UserDTO;
-import lk.esoft.fulemanagementsystem.entity.User;
-import lk.esoft.fulemanagementsystem.repository.UserRepository;
-import lk.esoft.fulemanagementsystem.util.VarList.VarList;
+import lk.esoft.EM6125_SDP_CW1API.dto.UserDTO;
+import lk.esoft.EM6125_SDP_CW1API.entity.User;
+import lk.esoft.EM6125_SDP_CW1API.repository.UserRepository;
+import lk.esoft.EM6125_SDP_CW1API.util.VarList.VarList;
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;

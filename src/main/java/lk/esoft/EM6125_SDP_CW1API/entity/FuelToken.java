@@ -14,6 +14,26 @@ import java.sql.Date;
 @NoArgsConstructor
 @Data
 public class FuelToken {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer tid;
+    private Integer vehicleRegNo;
+    private String status;
+    private Date tokenExpDate;
+    private Integer requestQuota;
+    private Date fillingTimeAndDate;
+
+    @OneToOne
+    @JoinColumn(name = "username_fk", referencedColumnName = "username")
+    private User usernameFk;
+
+    @OneToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "pid_fk", referencedColumnName = "pid")
+    private Payment pidFk;
+
+    @OneToOne
+    @JoinColumn(name = "fuel_station_fk", referencedColumnName = "fid")
+    private FuelStation fuelStationFk;
 
 
 

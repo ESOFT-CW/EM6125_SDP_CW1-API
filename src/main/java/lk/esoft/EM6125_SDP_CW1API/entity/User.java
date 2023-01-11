@@ -32,7 +32,4 @@ public class User implements Serializable {
     @JoinColumn(name = "roleCode", referencedColumnName = "UserRoleCode")
     private UserRole roleCode;
 
-    /*@OneToMany(cascade=CascadeType.ALL,mappedBy = "username")
-    private List<Vehicle> vehicleNo;*/
-
 }

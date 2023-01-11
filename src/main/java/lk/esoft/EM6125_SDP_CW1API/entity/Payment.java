@@ -14,4 +14,11 @@ import java.sql.Date;
 @NoArgsConstructor
 @Data
 public class Payment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer pid;
+    private String paymentStatus;
+    private Date paymentDate;
+    private double price;
+
 }
