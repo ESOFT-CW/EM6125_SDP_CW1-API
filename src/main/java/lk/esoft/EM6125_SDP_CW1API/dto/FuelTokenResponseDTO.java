@@ -9,5 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FuelTokenResponseDTO {
+    private byte[]qrString;
+    private int availableQuota;
+    private int fullQuota=20;
 }
 

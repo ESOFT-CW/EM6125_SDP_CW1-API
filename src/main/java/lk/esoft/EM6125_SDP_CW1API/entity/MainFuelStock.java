@@ -12,3 +12,4 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Data
 public class MainFuelStock {
+}
