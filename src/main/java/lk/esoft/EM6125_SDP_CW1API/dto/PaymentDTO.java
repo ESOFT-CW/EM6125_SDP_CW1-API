@@ -10,5 +10,7 @@ import java.sql.Date;
 @NoArgsConstructor
 @Data
 public class PaymentDTO {
-
+    private Integer pid;
+    private String paymentStatus;
+    private Date paymentDate;
 }

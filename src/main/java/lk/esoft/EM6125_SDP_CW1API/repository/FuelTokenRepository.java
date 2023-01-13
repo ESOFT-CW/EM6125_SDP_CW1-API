@@ -11,6 +11,8 @@ import java.util.List;
 public interface FuelTokenRepository extends JpaRepository<FuelToken,Integer> {
 
 
-
+    @Modifying
+    @Query(value = "UPDATE fuel_token SET status = ?2 WHERE tid = ?1",nativeQuery = true)
+    void changeTokenStatus(int tid, String status);
 
 }
