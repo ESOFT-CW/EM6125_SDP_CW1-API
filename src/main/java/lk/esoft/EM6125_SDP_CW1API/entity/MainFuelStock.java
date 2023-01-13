@@ -12,4 +12,12 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Data
 public class MainFuelStock {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int mfs_id;
+    private String status;
+    private int available_limit;
+    private int requested_limit;
+    private int main_stock;
 }

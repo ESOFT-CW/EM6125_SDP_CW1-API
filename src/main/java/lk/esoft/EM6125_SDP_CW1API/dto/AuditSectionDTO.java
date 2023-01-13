@@ -8,4 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class AuditSectionDTO {
+    private Integer aids;
+    private String dates;
+    private String functions;
+    private String messages;
 }

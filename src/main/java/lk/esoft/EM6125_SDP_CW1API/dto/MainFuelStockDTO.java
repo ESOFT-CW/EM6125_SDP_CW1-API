@@ -9,4 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class MainFuelStockDTO {
+    private int mfs_id;
+    private String status;
+    private int available_limit;
+    private int requested_limit;
+    private int main_stock;
 }
