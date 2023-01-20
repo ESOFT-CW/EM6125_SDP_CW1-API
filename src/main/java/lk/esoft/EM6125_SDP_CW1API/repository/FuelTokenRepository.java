@@ -15,4 +15,7 @@ public interface FuelTokenRepository extends JpaRepository<FuelToken,Integer> {
     @Query(value = "UPDATE fuel_token SET status = ?2 WHERE tid = ?1",nativeQuery = true)
     void changeTokenStatus(int tid, String status);
 
+    @Query(value = "select * from fuel_token where username_fk=?1 ORDER BY tid DESC Limit 1",nativeQuery = true)
+    FuelToken getQRGeneratingToken(String username);
+
 }

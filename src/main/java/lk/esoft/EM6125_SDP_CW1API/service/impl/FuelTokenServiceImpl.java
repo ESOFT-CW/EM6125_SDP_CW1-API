@@ -306,4 +306,102 @@ public class FuelTokenServiceImpl implements FuelTokenService {
             return VarList.Conflict;
         }
     }
+
+    @Override
+    public int generateToken(FuelTokenDTO fuelTokenDTO) {
+
+        //FuelTokenResponseDTO fuelTokenResponseDTO=new FuelTokenResponseDTO();
+
+        if (fuelTokenRepository.existsById(fuelTokenDTO.getTid())) {
+            //fuelTokenResponseDTO.setQrString(null);
+            auditService.saveAudit("generateToken","FAIL:Generate Fuel Token"+fuelTokenDTO.getVehicleRegNo());
+            return VarList.Not_Found;
+        } else {
+
+            //update vehicle weekly limit
+            int availableBalance = vehicleRepository.getAvailableBalance(fuelTokenDTO.getVehicleRegNo());
+            int newBalance = availableBalance - fuelTokenDTO.getRequestQuota();
+            Vehicle vehicle = new Vehicle();
+            vehicle.setVehicle_no(fuelTokenDTO.getVehicleRegNo());
+            vehicle.setAvailable_quota(newBalance);
+            vehicle.setUsername_Fk(fuelTokenDTO.getUsernameFk().getUsername());
+            if (vehicleRepository.getUserName(fuelTokenDTO.getVehicleRegNo()).equals(fuelTokenDTO.getUsernameFk().getUsername())) {
+                vehicleRepository.save(vehicle);
+            } else {
+                auditService.saveAudit("generateToken","FAIL:Generate Fuel Token"+fuelTokenDTO.getVehicleRegNo()+"Wrong Username");
+                return VarList.Not_Acceptable;
+            }
+
+            //update fuel station available stock
+            int stationAvailability = fuelStationRepository.getAvailableBalance(fuelTokenDTO.getFuelStationFk().getFid());
+            int requestQuota = fuelTokenDTO.getRequestQuota();
+            int newAvailability = stationAvailability - requestQuota;
+            int customerRequestedLimit = fuelStationRepository.getCustomerRequestQuota(fuelTokenDTO.getFuelStationFk().getFid());
+            int newCustomerRequestedLimit = customerRequestedLimit + requestQuota;
+            fuelStationRepository.updateFuelStationBalances(newAvailability, newCustomerRequestedLimit, fuelTokenDTO.getFuelStationFk().getFid());
+
+            //set Price
+            fuelTokenDTO.getPidFk().setPrice(fuelPriceCalculation(fuelTokenDTO.getRequestQuota()));
+            //create fuel token
+            fuelTokenRepository.save(modelMapper.map(fuelTokenDTO, FuelToken.class));
+
+       /*String qr=generateQRString(fuelTokenDTO);
+       try {
+           byte[] qrimage=QRCodeGenerator.getQRCodeImage(qr,200,200);
+           fuelTokenResponseDTO.setQrString(qrimage);
+       } catch (WriterException e) {
+           e.printStackTrace();
+       } catch (IOException ioException) {
+           ioException.printStackTrace();
+       }*/
+            auditService.saveAudit("generateToken","PASS:Fuel Token Generation Pass"+fuelTokenDTO.getVehicleRegNo());
+            return VarList.Created;
+        }
+    }
+
+    private String generateQRString(FuelTokenDTO fuelTokenDTO) {
+        String s = "" + fuelTokenDTO.getTid().toString() + "" + fuelTokenDTO.getFillingTimeAndDate().toString() + "" +
+                fuelTokenDTO.getRequestQuota().toString() + "" +
+                fuelTokenDTO.getStatus() + "" +
+                fuelTokenDTO.getTokenExpDate().toString() + "" +
+                fuelTokenDTO.getVehicleRegNo().toString() + "" +
+                fuelTokenDTO.getFuelStationFk().getFid().toString() + "" +
+                fuelTokenDTO.getPidFk().getPid().toString() + "" + fuelTokenDTO.getUsernameFk().getUsername() + "";
+        auditService.saveAudit("generateQRString","PASS:Generate QR String"+fuelTokenDTO.getVehicleRegNo());
+        return s;
+    }
+
+    @Override
+    public int generateTokenInFirstTime(FuelTokenDTO fuelTokenDTO) {
+        FuelTokenResponseDTO fuelTokenResponseDTO = new FuelTokenResponseDTO();
+        if (fuelTokenRepository.existsById(fuelTokenDTO.getTid())) {
+            //fuelTokenResponseDTO.setQrString(null);
+            auditService.saveAudit("generateTokenInFirstTime","FAIL:Fist Time Generate Fuel Token"+fuelTokenDTO.getVehicleRegNo());
+            return VarList.Not_Found;
+        } else {
+            Vehicle vehicle = new Vehicle();
+            vehicle.setVehicle_no(fuelTokenDTO.getVehicleRegNo());
+            vehicle.setAvailable_quota(20);
+            vehicle.setUsername_Fk(fuelTokenDTO.getUsernameFk().getUsername());
+            fuelTokenDTO.getPidFk().setPrice(fuelPriceCalculation(fuelTokenDTO.getRequestQuota()));
+            vehicleRepository.save(vehicle);
+            fuelTokenRepository.save(modelMapper.map(fuelTokenDTO, FuelToken.class));
+      /* String qr=generateQRString(fuelTokenDTO);
+       try {
+           byte[] qrimage=QRCodeGenerator.getQRCodeImage(qr,200,200);
+           fuelTokenResponseDTO.setQrString(qrimage);
+       } catch (WriterException e) {
+           e.printStackTrace();
+       } catch (IOException ioException) {
+           ioException.printStackTrace();
+       }*/
+
+            auditService.saveAudit("generateTokenInFirstTime","PASS:Fist Time Generate Fuel Token"+fuelTokenDTO.getVehicleRegNo());
+            return VarList.Created;
+        }
+    }
+
+
+
+
 }
