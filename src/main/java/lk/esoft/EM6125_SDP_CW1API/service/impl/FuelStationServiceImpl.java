@@ -3,14 +3,17 @@ package lk.esoft.EM6125_SDP_CW1API.service.impl;
 import lk.esoft.EM6125_SDP_CW1API.repository.FuelStationRepository;
 import lk.esoft.EM6125_SDP_CW1API.service.FuelStationService;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @Transactional
 public class FuelStationServiceImpl implements FuelStationService {
-
     @Autowired
     private AuditServiceImpl auditService;
 
@@ -28,7 +31,7 @@ public class FuelStationServiceImpl implements FuelStationService {
 
         if (fuelStationRepository.existsById(fid)) {
             FuelStation fuelStation=fuelStationRepository.findAllByUsername(username);
-            if (fuelStation.getMax_limit()<=quota){
+            if (fuelStation.getMax_limit()>=quota){
                 fuelStationRepository.requestFuel(fid,quota);
 
                 auditService.saveAudit("requestFuel","PASS:Fuel Station:("+""+fid+") requested Fuel Quota:"+quota);
